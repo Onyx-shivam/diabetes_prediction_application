@@ -24,15 +24,24 @@ BASE_DIR = Path(__file__).resolve().parent
 # =====================================================================
 APP_TITLE = "Metabolic profile classifier"
 APP_SUBTITLE = (
-    "Enter 17 health details and the SVM model sorts the profile "
-    "into one of three categories."
+    "Enter 17 health details and the SVM model rates the profile "
+    "as low, moderate or high risk."
 )
 
-# What each predicted class (0, 1, 2) means. Rename to match your target.
+# Risk level for each predicted class (0, 1, 2). "rank" orders them from
+# lowest (0) to highest (2) risk. Inferred from the model's behaviour:
+# class 1 = lowest glucose/HbA1c/BMI profile, class 2 = middle, class 0 = highest.
+# Confirm against your training labels and swap the keys here if needed.
 CLASS_LABELS = {
-    0: {"name": "Category 0", "note": "Predicted class 0", "color": "#4F46E5"},
-    1: {"name": "Category 1", "note": "Predicted class 1", "color": "#0D9488"},
-    2: {"name": "Category 2", "note": "Predicted class 2", "color": "#EA580C"},
+    1: {"name": "Low risk", "rank": 0, "color": "#16A34A",
+        "note": "This profile resembles the lower-risk cases the model learned from. "
+                "Keep up healthy habits and regular check-ups."},
+    2: {"name": "Moderate risk", "rank": 1, "color": "#D97706",
+        "note": "This profile sits in the middle. Lifestyle changes and a routine "
+                "screening discussion with a doctor are worth considering."},
+    0: {"name": "High risk", "rank": 2, "color": "#DC2626",
+        "note": "This profile resembles the higher-risk cases the model learned from. "
+                "Please talk to a doctor soon about testing and a care plan."},
 }
 
 # Cities are encoded 0-17 in the model. Replace with your real city names
@@ -312,7 +321,12 @@ aside.has-result{border-top-color:var(--c);background:linear-gradient(180deg,col
 .result .kicker{color:var(--muted);font-size:14px;margin:0 0 4px}
 .result .verdict{font-family:var(--display);font-weight:700;font-size:44px;line-height:1.02;
   letter-spacing:-.025em;margin:0 0 6px}
-.result .note{color:var(--muted);margin:0 0 26px}
+.result .note{color:var(--ink);margin:0 0 22px;opacity:.85}
+.meter{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 26px}
+.meter div{height:10px;border-radius:999px;opacity:.22;transition:opacity .4s}
+.meter div.on{opacity:1}
+.meter-labels{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:-20px 0 26px;font-size:13px;color:var(--muted)}
+.meter-labels span:nth-child(2){text-align:center}.meter-labels span:nth-child(3){text-align:right}
 .bars{display:grid;gap:16px}
 .bar-top{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px}
 .bar-top b{font-weight:600}
@@ -501,17 +515,30 @@ function showEmpty(){
 }
 
 function showResult(data){
-  const cls = CFG.classes[String(data.predicted)] || {name: 'Class ' + data.predicted, note: '', color: '#4F46E5'};
+  const cls = CFG.classes[String(data.predicted)] || {name: 'Class ' + data.predicted, note: '', color: '#4F46E5', rank: 0};
   sideEl.style.setProperty('--c', cls.color);
   sideEl.classList.add('has-result');
   resultEl.innerHTML = '';
-  resultEl.append(el('p', 'kicker', 'Predicted category'));
+  resultEl.append(el('p', 'kicker', 'Your risk level'));
   const v = el('p', 'verdict', cls.name); v.style.color = cls.color;
   resultEl.append(v, el('p', 'note', cls.note));
 
+  const ordered = Object.entries(CFG.classes).map(([k, c]) => ({k: Number(k), c})).sort((a, b) => a.c.rank - b.c.rank);
+  const meter = el('div', 'meter');
+  meter.setAttribute('role', 'img');
+  meter.setAttribute('aria-label', 'Risk meter: ' + cls.name);
+  ordered.forEach(o => {
+    const seg = el('div', o.k === data.predicted ? 'on' : '');
+    seg.style.background = o.c.color; meter.append(seg);
+  });
+  const ml = el('div', 'meter-labels');
+  ordered.forEach(o => ml.append(el('span', null, o.c.name.replace(' risk', ''))));
+  resultEl.append(meter, ml);
+
   const bars = el('div', 'bars');
   const best = Math.max(...data.scores.map(s => s.share));
-  data.scores.forEach(s => {
+  const rankOf = s => (CFG.classes[String(s['class'])] || {rank: 0}).rank;
+  [...data.scores].sort((a, b) => rankOf(a) - rankOf(b)).forEach(s => {
     const c = CFG.classes[String(s['class'])] || {name: 'Class ' + s['class'], color: '#4F46E5'};
     const bar = el('div', 'bar' + (s.share === best ? ' top' : ''));
     const top = el('div', 'bar-top');
@@ -529,7 +556,7 @@ function showResult(data){
     resultEl.append(w);
   }
   resultEl.append(el('p', 'disclaimer',
-    'Confidence shows how the model\u2019s scores compare across categories. It is not a clinical probability. This tool supports screening and does not replace a diagnosis from a doctor.'));
+    'Confidence shows how the model\u2019s scores compare across the three risk levels. It is not a clinical probability. This tool supports screening and does not replace advice from a doctor.'));
   emptyEl.classList.add('hidden'); resultEl.classList.remove('hidden');
   if (window.matchMedia('(max-width:960px)').matches){
     resultEl.scrollIntoView({behavior: 'smooth', block: 'start'});
