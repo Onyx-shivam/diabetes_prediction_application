@@ -30,9 +30,9 @@ APP_SUBTITLE = (
 
 # What each predicted class (0, 1, 2) means. Rename to match your target.
 CLASS_LABELS = {
-    0: {"name": "Category 0", "note": "Predicted class 0", "color": "#3347E0"},
-    1: {"name": "Category 1", "note": "Predicted class 1", "color": "#0E9F8E"},
-    2: {"name": "Category 2", "note": "Predicted class 2", "color": "#D9822B"},
+    0: {"name": "Category 0", "note": "Predicted class 0", "color": "#4F46E5"},
+    1: {"name": "Category 1", "note": "Predicted class 1", "color": "#0D9488"},
+    2: {"name": "Category 2", "note": "Predicted class 2", "color": "#EA580C"},
 }
 
 # Cities are encoded 0-17 in the model. Replace with your real city names
@@ -221,10 +221,11 @@ INDEX_HTML = r"""<!DOCTYPE html>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#13202B; --muted:#5B6877; --paper:#F2F4F7; --surface:#FFFFFF;
-  --line:#DDE2E9; --soft:#EEF1F5; --accent:#3347E0; --accent-ink:#FFFFFF;
-  --danger:#C23B32; --warn-bg:#FFF5E5; --warn-ink:#7A4A06;
-  --radius:14px;
+  --ink:#16213E; --muted:#5E6B85; --paper:#EEF1FB; --surface:#FFFFFF;
+  --line:#DFE4F3; --soft:#EDF0FA; --accent:#4F46E5; --accent-ink:#FFFFFF;
+  --danger:#C23B32; --warn-bg:#FFF4E0; --warn-ink:#7A4A06;
+  --shadow:0 12px 32px rgba(40,44,120,.10);
+  --radius:16px;
   --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
   --body:"Figtree","Segoe UI",system-ui,sans-serif;
 }
@@ -232,18 +233,26 @@ INDEX_HTML = r"""<!DOCTYPE html>
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);
   font-size:16px;line-height:1.5}
-.wrap{max-width:1120px;margin:0 auto;padding:40px 24px 64px}
-header{margin-bottom:32px;max-width:640px}
+.hero{position:relative;overflow:hidden;color:#fff;
+  background:linear-gradient(135deg,#1B1464 0%,#4338CA 55%,#0F8F8B 100%)}
+.hero::before{content:"";position:absolute;right:-110px;top:-150px;width:460px;height:460px;
+  border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.24),rgba(255,255,255,0) 70%)}
+.hero::after{content:"";position:absolute;left:38%;bottom:-210px;width:420px;height:420px;
+  border-radius:50%;background:radial-gradient(circle,rgba(45,212,191,.35),rgba(45,212,191,0) 70%)}
+.hero-in{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:48px 24px 108px}
+.wrap{position:relative;z-index:2;max-width:1120px;margin:-68px auto 0;padding:0 24px 64px}
+header{max-width:640px}
 h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,4.4vw,46px);
   line-height:1.05;letter-spacing:-.02em;margin:0 0 12px}
-header p{margin:0;color:var(--muted);font-size:17px}
+header p{margin:0;color:rgba(255,255,255,.84);font-size:17px}
 
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:24px;align-items:start}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 form.panel{padding:8px 28px 28px}
 .group{padding:24px 0;border-bottom:1px solid var(--line)}
 .group:last-of-type{border-bottom:0}
-.group h2{font-family:var(--display);font-weight:500;font-size:21px;letter-spacing:-.01em;margin:0 0 18px}
+.group h2{display:flex;align-items:center;gap:12px;font-family:var(--display);font-weight:500;font-size:21px;letter-spacing:-.01em;margin:0 0 18px}
+.group h2::before{content:"";width:6px;height:24px;border-radius:3px;background:var(--g,var(--accent))}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px 20px}
 .field{display:flex;flex-direction:column;gap:7px;min-width:0}
 .field>label,.field>.lbl{font-size:14px;font-weight:600}
@@ -262,8 +271,9 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .input-wrap input{padding-right:70px}
 .unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);
   color:var(--muted);font-size:14px;pointer-events:none}
-input:hover,select:hover{border-color:#C3CBD6}
-:focus-visible{outline:3px solid rgba(51,71,224,.35);outline-offset:2px}
+input:hover,select:hover{border-color:#B8C0E0}
+input:focus,select:focus{border-color:var(--accent)}
+:focus-visible{outline:3px solid rgba(79,70,229,.35);outline-offset:2px}
 input[aria-invalid=true],select[aria-invalid=true]{border-color:var(--danger)}
 .err{color:var(--danger);font-size:13px;margin:0}
 
@@ -271,9 +281,9 @@ input[aria-invalid=true],select[aria-invalid=true]{border-color:var(--danger)}
 .seg input{position:absolute;opacity:0;pointer-events:none}
 .seg label{flex:1;text-align:center;padding:9px 10px;border-radius:7px;font-size:14px;
   font-weight:500;color:var(--muted);cursor:pointer;transition:background .15s,color .15s}
-.seg input:checked+label{background:var(--surface);color:var(--ink);font-weight:600;
-  box-shadow:0 1px 2px rgba(19,32,43,.12),0 0 0 1px var(--line)}
-.seg input:focus-visible+label{outline:3px solid rgba(51,71,224,.35);outline-offset:1px}
+.seg input:checked+label{background:var(--accent);color:#fff;font-weight:600;
+  box-shadow:0 3px 8px rgba(79,70,229,.35)}
+.seg input:focus-visible+label{outline:3px solid rgba(79,70,229,.35);outline-offset:1px}
 
 .range-row{display:flex;align-items:center;gap:14px}
 input[type=range]{flex:1;accent-color:var(--accent);height:28px;margin:0}
@@ -283,18 +293,19 @@ input[type=range]{flex:1;accent-color:var(--accent);height:28px;margin:0}
 .actions{display:flex;gap:12px;flex-wrap:wrap;padding-top:8px}
 button{font:inherit;cursor:pointer;border-radius:10px;height:48px;padding:0 24px;font-weight:600;
   border:1px solid transparent;transition:transform .1s,background .15s}
-.primary{background:var(--accent);color:var(--accent-ink)}
-.primary:hover{background:#2639C9}
+.primary{background:linear-gradient(135deg,#4F46E5,#7048E8);color:var(--accent-ink);box-shadow:0 8px 18px rgba(79,70,229,.30)}
+.primary:hover{background:linear-gradient(135deg,#4338CA,#5F3DD6)}
 .primary:active{transform:translateY(1px)}
 .primary[disabled]{opacity:.65;cursor:progress}
 .ghost{background:transparent;color:var(--ink);border-color:var(--line)}
-.ghost:hover{background:var(--soft)}
+.ghost:hover{background:var(--soft);border-color:#B8C0E0}
 
-aside.panel{position:sticky;top:24px;padding:28px;min-height:320px}
+aside.panel{position:sticky;top:24px;padding:28px;min-height:320px;border-top:5px solid var(--line)}
+aside.has-result{border-top-color:var(--c);background:linear-gradient(180deg,color-mix(in srgb,var(--c) 11%,#fff) 0%,#fff 62%)}
 .empty h2,.result h2{font-family:var(--display);font-weight:500;font-size:21px;margin:0 0 8px}
 .empty p{color:var(--muted);margin:0}
 .empty .ghosts{margin-top:28px;display:grid;gap:14px}
-.empty .ghosts span{display:block;height:12px;border-radius:6px;background:var(--soft)}
+.empty .ghosts span{display:block;height:12px;border-radius:6px;background:#E3E7F8}
 .empty .ghosts span:nth-child(1){width:92%}.empty .ghosts span:nth-child(2){width:64%}
 .empty .ghosts span:nth-child(3){width:38%}
 
@@ -306,7 +317,7 @@ aside.panel{position:sticky;top:24px;padding:28px;min-height:320px}
 .bar-top{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px}
 .bar-top b{font-weight:600}
 .bar-top span{font-variant-numeric:tabular-nums;color:var(--muted)}
-.track{height:10px;background:var(--soft);border-radius:999px;overflow:hidden}
+.track{height:10px;background:rgba(79,70,229,.10);border-radius:999px;overflow:hidden}
 .fill{height:100%;width:0;border-radius:999px;transition:width .7s cubic-bezier(.2,.8,.2,1)}
 .bar.top .bar-top b,.bar.top .bar-top span{color:var(--ink)}
 .warns{margin:22px 0 0;padding:14px 16px;background:var(--warn-bg);color:var(--warn-ink);
@@ -322,7 +333,8 @@ aside.panel{position:sticky;top:24px;padding:28px;min-height:320px}
   aside.panel{position:static;min-height:0}
 }
 @media (max-width:520px){
-  .wrap{padding:28px 16px 48px}
+  .hero-in{padding:36px 16px 96px}
+  .wrap{padding:0 16px 48px}
   form.panel{padding:4px 18px 22px}
   .actions button{flex:1}
 }
@@ -332,16 +344,20 @@ aside.panel{position:sticky;top:24px;padding:28px;min-height:320px}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1 id="title"></h1>
-    <p id="subtitle"></p>
-  </header>
+<div class="hero">
+  <div class="hero-in">
+    <header>
+      <h1 id="title"></h1>
+      <p id="subtitle"></p>
+    </header>
+  </div>
+</div>
 
+<div class="wrap">
   <div class="layout">
     <form id="form" class="panel" novalidate></form>
 
-    <aside class="panel" aria-live="polite">
+    <aside id="side" class="panel" aria-live="polite">
       <div id="empty" class="empty">
         <h2>Your result will show here</h2>
         <p>Fill in the details and run the prediction.</p>
@@ -424,8 +440,10 @@ function buildField(f){
 function buildForm(){
   const banner = el('p', 'banner hidden'); banner.id = 'banner';
   form.append(banner);
-  [...new Set(CFG.fields.map(f => f.group))].forEach(g => {
+  const GROUP_COLORS = ['#4F46E5', '#0D9488', '#F97316'];
+  [...new Set(CFG.fields.map(f => f.group))].forEach((g, gi) => {
     const sec = el('section', 'group');
+    sec.style.setProperty('--g', GROUP_COLORS[gi % GROUP_COLORS.length]);
     sec.append(el('h2', null, g));
     const grid = el('div', 'grid');
     CFG.fields.filter(f => f.group === g).forEach(f => grid.append(buildField(f)));
@@ -476,12 +494,16 @@ function showErrors(errors){
   if (first) first.scrollIntoView({behavior: 'smooth', block: 'center'});
 }
 
+const sideEl = document.getElementById('side');
 function showEmpty(){
+  sideEl.classList.remove('has-result');
   resultEl.classList.add('hidden'); emptyEl.classList.remove('hidden');
 }
 
 function showResult(data){
-  const cls = CFG.classes[String(data.predicted)] || {name: 'Class ' + data.predicted, note: '', color: '#3347E0'};
+  const cls = CFG.classes[String(data.predicted)] || {name: 'Class ' + data.predicted, note: '', color: '#4F46E5'};
+  sideEl.style.setProperty('--c', cls.color);
+  sideEl.classList.add('has-result');
   resultEl.innerHTML = '';
   resultEl.append(el('p', 'kicker', 'Predicted category'));
   const v = el('p', 'verdict', cls.name); v.style.color = cls.color;
@@ -490,7 +512,7 @@ function showResult(data){
   const bars = el('div', 'bars');
   const best = Math.max(...data.scores.map(s => s.share));
   data.scores.forEach(s => {
-    const c = CFG.classes[String(s['class'])] || {name: 'Class ' + s['class'], color: '#3347E0'};
+    const c = CFG.classes[String(s['class'])] || {name: 'Class ' + s['class'], color: '#4F46E5'};
     const bar = el('div', 'bar' + (s.share === best ? ' top' : ''));
     const top = el('div', 'bar-top');
     top.append(el('b', null, c.name), el('span', null, s.share.toFixed(1) + '%'));
